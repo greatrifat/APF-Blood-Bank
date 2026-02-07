@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🩸 APF Blood Bank</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Global Styles */
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    color: #333;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: #e74c3c;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .filter-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  select {
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    min-width: 180px;
+    transition: all 0.3s ease;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231,76,60,0.3);
+  }
+
+  button {
+    padding: 12px 25px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+  }
+
+  th {
+    background: #e74c3c;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tr {
+    transition: all 0.3s ease;
+  }
+
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  tr:hover {
+    background: #ffe6e6;
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    th, td {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    select, button {
+      width: 100%;
+    }
+
+    .filter-box {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Alokito Poribesh Foundation</h1>
+
+    <div class="filter-box">
+      <select id="bloodGroup">
+        <option value="">Select Blood Group</option>
+        <option value="A+">A+</option>
+        <option value="A-">A-</option>
+        <option value="B+">B+</option>
+        <option value="B-">B-</option>
+        <option value="O+">O+</option>
+        <option value="O-">O-</option>
+        <option value="AB+">AB+</option>
+        <option value="AB-">AB-</option>
+      </select>
+
+      <button onclick="loadData()">Show Data</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="sheetData"></table>
+    </div>
+  </div>
+
+<script>
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdcKyLifPIyRetYhPTRpum5Ftrf6id5-vaVs2uYd8WpmXvNf4TcPkBQ4LTgLBA0oy-r6z0FDYOVCHP/pub?gid=88758351&single=true&output=csv";
+
+function loadData() {
+  const selectedBG = document.getElementById("bloodGroup").value;
+  const table = document.getElementById("sheetData");
+  table.innerHTML = "";
+
+  fetch(csvURL)
+    .then(response => response.text())
+    .then(data => {
+      const rows = data.trim().split("\n").map(r => r.split(","));
+
+      // Correct column indexes based on your CSV
+      const NAME_COLUMN = 0;
+      const PHONE_COLUMN = 1;
+      const BLOOD_COLUMN = 2;
+
+      // Table header
+      let header = `
+        <tr>
+          <th>Full Name</th>
+          <th>Phone Number</th>
+          <th>Blood Group</th>
+        </tr>
+      `;
+      table.innerHTML = header;
+
+      for (let i = 1; i < rows.length; i++) {
+        let name = rows[i][NAME_COLUMN];
+        let phone = rows[i][PHONE_COLUMN];
+        let blood = rows[i][BLOOD_COLUMN];
+
+        // IMPORTANT FIX → trim spaces before comparing
+        if (selectedBG === "" || blood.trim() === selectedBG) {
+          let row = `
+            <tr>
+              <td>${name}</td>
+              <td>${phone}</td>
+              <td>${blood}</td>
+            </tr>
+          `;
+          table.innerHTML += row;
+        }
+      }
+    });
+}
+</script>
+
+
+</body>
+</html>
